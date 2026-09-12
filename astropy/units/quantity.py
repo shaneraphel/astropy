@@ -1487,6 +1487,11 @@ class Quantity(np.ndarray):
             - 'latex_inline': Return a LaTeX-formatted string that uses
               negative exponents instead of fractions
 
+            FITS, VOUnit, CDS, and OGIP strings are produced by
+            `~astropy.units.UnitBase.to_string` or a format specifier
+            on the unit, for example ``q.unit.to_string(format='fits')``
+            and ``f"{q.unit:FITS}"``.
+
         formatter : str, callable, dict, optional
             The formatter to use for the value. If a string, it should be a
             valid format specifier using Python's mini-language. If a callable,

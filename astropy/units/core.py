@@ -158,6 +158,9 @@ class UnitBase:
         format : `astropy.units.format.Base` subclass or str or None
             The name of a format or a formatter class.  If not
             provided (or `None`), defaults to the generic format.
+            Built-in names include ``'cds'``, ``'console'``,
+            ``'fits'``, ``'generic'``, ``'latex'``, ``'latex_inline'``,
+            ``'ogip'``, ``'unicode'``, and ``'vounit'``.
         deprecations : {"warn", "silent", "raise", "convert"}, optional, keyword-only
             Whether deprecated units should emit a warning, be handled
             silently or raise an error. The "convert" option replaces
@@ -185,6 +188,8 @@ class UnitBase:
         >>> kms = u.Unit('km / s')
         >>> kms.to_string()  # Generic uses fraction='inline' by default
         'km / s'
+        >>> kms.to_string(format='fits')
+        'km s-1'
         >>> kms.to_string('latex')  # Latex uses fraction='multiline' by default
         '$\\mathrm{\\frac{km}{s}}$'
         >>> print(kms.to_string('unicode', fraction=False))

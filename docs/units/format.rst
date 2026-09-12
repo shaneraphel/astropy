@@ -117,6 +117,13 @@ implementation of the `format`-style usage::
     >>> fluxunit = u.erg / (u.cm ** 2 * u.s)
     >>> fluxunit.to_string('latex')
     '$\\mathrm{\\frac{erg}{s\\,cm^{2}}}$'
+    >>> fluxunit.to_string(format='fits')
+    'erg s-1 cm-2'
+
+``Quantity.to_string`` accepts ``format='latex'`` and
+``format='latex_inline'``.  FITS, VOUnit, CDS, and OGIP strings come
+from ``Unit.to_string`` or a format specifier on the unit, for example
+``q.unit.to_string(format='fits')`` and ``f"{q.unit:FITS}"``.
 
 Deprecated Units
 ----------------
