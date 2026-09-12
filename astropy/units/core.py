@@ -952,7 +952,11 @@ class UnitBase:
 
             To use your own module it must contain unit objects and a
             sequence member named ``bases`` containing the base units of
-            the system.
+            the system.  Each irreducible factor of this unit must
+            convert onto a single requested base.  A dimensionally
+            complete combination such as length, velocity, and the
+            gravitational-constant unit is not sufficient; use
+            ``Unit.to`` for those conversions.
 
         Returns
         -------
