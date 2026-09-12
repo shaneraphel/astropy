@@ -145,36 +145,34 @@ units exists, it will be put sorted to the front::
    >>> unit.to_system(u.cgs)
    [Unit("10000 cm2 / s"), Unit("10000 St")]
 
-Custom ``bases`` are not a dimensional linear-algebra solver.
-``to_system`` first calls ``decompose(bases=system.bases)``.  Each
-irreducible factor of the source unit (for example ``kg``) must convert
-onto **one** requested base.  A set that is only complete as a linear
-combination, such as length, velocity, and the gravitational-constant
-unit, is rejected even when ``Unit.to`` can express the same conversion.
+``to_system`` first calls ``decompose(bases=system.bases)`` and then
+``compose(units=system)``.  When ``system`` is a module, ``compose``
+uses the ``Unit`` objects defined in that module.  The ``bases``
+sequence is used only by ``decompose``.
 
-The following reconstruction of the public example in
+The public scripts attached to
 `astropy issue 19045 <https://github.com/astropy/astropy/issues/19045>`_
-was measured on Astropy 8.0.1.  The attachment files from that issue
-were not used; the units below are taken from the issue statement.
+were run on Astropy 8.0.1.  Those files define custom units ``myrh``,
+``myU``, and ``myG``, and set ``bases = [u.cm, u.s, u.g]``.
 
 .. code-block:: python
 
-    import types
     import astropy.units as u
-    from astropy.constants import G
+    import custom_astropy_unit_system as mySys
 
-    ulength = u.def_unit("ulength", u.m)
-    uvelocity = u.def_unit("uvelocity", u.m / u.s)
-    uG = u.def_unit("uG", G.unit)
-    custom = types.SimpleNamespace(bases=[ulength, uvelocity, uG])
-    dens = u.kg / u.m**3
-    target = uvelocity**2 / (ulength**2 * uG)
-    dens.to(target)  # 1.0
-    dens.to_system(custom)
-    # UnitConversionError: Unit kg can not be decomposed into the requested bases
+    u.add_enabled_units(mySys)
+    dens = u.g * u.cm**-3
+    target = mySys.myU**2 / mySys.myrh**2 / mySys.myG
+    dens.to(target)  # 1.5890500480699994e+19
+    dens.to_system(mySys)
+    # UnitsError: Cannot represent unit g / cm3 in terms of the given units
 
-For that conversion, call ``Unit.to`` with the explicit target unit, or
-give ``bases`` a set of units that each SI irreducible can convert onto
-one-to-one (as ``u.si.bases`` and ``u.cgs.bases`` do).
+``compose`` then sees only ``myrh``, ``myU``, and ``myG``.  If
+``bases`` is instead those three custom units, ``decompose`` raises
+``UnitConversionError: Unit kg can not be decomposed into the requested
+bases``.  Each irreducible factor must convert onto one requested base
+(as ``u.si.bases`` and ``u.cgs.bases`` do).
+
+For an explicit target unit, call ``Unit.to``.
 
 .. EXAMPLE END
