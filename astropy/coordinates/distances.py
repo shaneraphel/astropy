@@ -200,6 +200,13 @@ class Distance(u.SpecificTypeQuantity):
                 "`allow_negative=True` to allow negative values."
             )
 
+        # Remember the construction redshift and cosmology so ``.z``
+        # is not a silent invert through the live default cosmology
+        # (astropy/astropy#11776). Attributes are None when the
+        # distance was not built from ``z=``.
+        distance._z = None if z is None else np.asarray(z, dtype=float)
+        distance._cosmology = cosmology if z is not None else None
+
         return distance
 
     @property
@@ -215,10 +222,15 @@ class Distance(u.SpecificTypeQuantity):
         Parameters
         ----------
         cosmology : `~astropy.cosmology.Cosmology` or None
-            The cosmology to assume for this calculation, or `None` to use the
-            current cosmology (see `astropy.cosmology` for details).
+            The cosmology to assume for this calculation, or `None` to use
+            the cosmology stored at construction (when the distance was
+            built from ``z=``) and otherwise the current default
+            cosmology (see `astropy.cosmology` for details).
         **atzkw
-            keyword arguments for :func:`~astropy.cosmology.z_at_value`
+            keyword arguments for :func:`~astropy.cosmology.z_at_value`.
+            ``zmax`` defaults to ``1e7`` so radiation-era luminosity
+            distances can be inverted (default ``z_at_value`` ``zmax``
+            is 1000).
 
         Returns
         -------
@@ -241,12 +253,18 @@ class Distance(u.SpecificTypeQuantity):
         """
         from astropy.cosmology import z_at_value
 
+        stored_z = getattr(self, "_z", None)
+        stored_cosmo = getattr(self, "_cosmology", None)
+
         if cosmology is None:
+            if stored_cosmo is not None and stored_z is not None:
+                return u.Quantity(stored_z, u.dimensionless_unscaled, copy=False)
             from astropy.cosmology import default_cosmology
 
             cosmology = default_cosmology.get()
 
         atzkw.setdefault("ztol", 1.0e-10)
+        atzkw.setdefault("zmax", 1.0e7)
         return z_at_value(cosmology.luminosity_distance, self, **atzkw)
 
     @property

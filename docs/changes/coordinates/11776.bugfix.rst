@@ -1,0 +1,5 @@
+- ``Distance`` constructed from ``z=`` now stores that redshift and
+  cosmology, so ``.z`` is exact and does not follow a later
+  ``default_cosmology`` change. ``compute_z`` defaults ``zmax`` to
+  ``1e7``, so radiation-era luminosity distances invert.
+  [#11776]

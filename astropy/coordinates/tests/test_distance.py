@@ -141,6 +141,36 @@ def test_distances_scipy():
     npt.assert_allclose(d4.z, [0.23, 0.45], rtol=1e-8)
 
 
+@pytest.mark.skipif(not HAS_SCIPY, reason="Requires scipy")
+def test_distance_stores_z_and_cosmology():
+    """Construction from ``z=`` must remember z and cosmology.
+
+    Data label: ``astropy_8.0.1_Distance_z_zmax1000_cosmology_leak``.
+    On Astropy 8.0.1 ``Distance(z=4000, cosmology=Planck18).z`` raises
+    ``CosmologyError`` at the default ``z_at_value`` wall ``zmax=1000``,
+    ``Distance(z=100).z == 100`` is False (invert residual), and
+    switching ``default_cosmology`` to WMAP7 changes a Planck18
+    ``Distance(z=100).z`` to ~98.78. Regression for
+    https://github.com/astropy/astropy/issues/11776.
+    Software invertibility / object identity, not a cosmological
+    discovery.
+    """
+    from astropy.cosmology import Planck18, WMAP7, default_cosmology
+
+    d = Distance(z=100, cosmology=Planck18)
+    assert float(d.z) == 100.0
+
+    d_hi = Distance(z=4000, cosmology=Planck18)
+    npt.assert_allclose(d_hi.z, 4000.0, rtol=0, atol=0)
+
+    with default_cosmology.set(WMAP7):
+        assert float(d.z) == 100.0
+
+    # Length-only distances still invert; zmax must clear z=4000.
+    d_len = Distance(Planck18.luminosity_distance(4000))
+    npt.assert_allclose(d_len.compute_z(Planck18), 4000.0, rtol=1e-6)
+
+
 def test_distance_change():
     ra = Longitude("4:08:15.162342", unit=u.hour)
     dec = Latitude("-41:08:15.162342", unit=u.degree)
