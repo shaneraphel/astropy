@@ -1,0 +1,47 @@
+# Fork-only. Not part of astropy/astropy#20401.
+# Uploads the local py312 coverage.xml for the neutrino PR head via GitHub Actions,
+# which Codecov treats as a fork tokenless / GHA service (local CLI is rejected).
+name: upload-local-coverage-20401
+
+on:
+  push:
+    branches: [cov-upload-20401]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tokenless GHA upload to astropy/astropy#20401
+        uses: codecov/codecov-action@v5
+        with:
+          files: coverage.xml
+          disable_search: true
+          plugins: noop
+          slug: astropy/astropy
+          override_commit: 6d13c9f9c65ffbcddd9cb95d52b6b4e6aef7a195
+          override_pr: "20401"
+          override_branch: shaneraphel:nu-relative-density-closed-form
+          fail_ci_if_error: false
+          verbose: true
+
+      - name: OIDC upload (ignored if fork cannot mint id-token)
+        uses: codecov/codecov-action@v5
+        continue-on-error: true
+        with:
+          files: coverage.xml
+          disable_search: true
+          plugins: noop
+          slug: astropy/astropy
+          override_commit: 6d13c9f9c65ffbcddd9cb95d52b6b4e6aef7a195
+          override_pr: "20401"
+          override_branch: shaneraphel:nu-relative-density-closed-form
+          use_oidc: true
+          fail_ci_if_error: false
+          verbose: true
