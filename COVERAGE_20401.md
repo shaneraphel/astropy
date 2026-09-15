@@ -8,7 +8,7 @@ pytest --pyargs astropy --cov=astropy --cov-report=xml
 
 | field | value |
 |---|---|
-| commit | `6d13c9f9c65ffbcddd9cb95d52b6b4e6aef7a195` |
+| commit | `a4247be99f5e7add4bd28b0f89ea2b52de874229` |
 | lines_valid | 70202 |
 | lines_covered | 62889 |
 | line_rate | 89.58% |
